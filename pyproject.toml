@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "notification  bot"
+version = "0.1.0"
+description = ""
+authors = ["Guangrei"]
+license = "mit"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.10"
+requests = "^2.31.0"
+bottle = "^0.12.25"
+cryptography = "^41.0.7"
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.4"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
