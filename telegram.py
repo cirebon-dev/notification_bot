@@ -1,7 +1,12 @@
 # -*-coding:utf8;-*-
 import os
 import requests
-
+"""
+library to interact with telegram bot api
+references:
+- https://telegram-bot-sdk.readme.io/reference/sendmessage
+- https://djangostars.com/blog/how-to-create-and-deploy-a-telegram-bot/
+"""
 
 token = os.environ.get("TG_BOT_TOKEN")
 BOT_URL = f'https://api.telegram.org/bot{token}/'
