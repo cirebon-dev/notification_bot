@@ -1,4 +1,0 @@
-requests
-bottle
-cryptography
-flake8
