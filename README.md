@@ -1,6 +1,6 @@
 [![status workflow test](https://github.com/cirebon-dev/notification_bot/actions/workflows/python-app.yml/badge.svg)](https://github.com/cirebon-dev/notification_bot/actions) 
 
-With [@sendh_bot](https://t.me/sendh_bot) you can easy send notification/message to telegram from anywhere (Terminal, CI/CD pipeline, IoT device etc)
+With [@sendh_bot](https://t.me/sendh_bot) you can easy to send file or text message to telegram from anywhere (Terminal, CI/CD pipeline, IoT device etc)
 
 ![Screenshot 1](Screenshots/Screenshot_1.png)
 
