@@ -1,8 +1,8 @@
 # -*-coding:utf8;-*-
 from cryptography.fernet import Fernet
 from bottle import route, request, post, auth_basic
+import bottle
 import json
-import requests
 import bottle
 import telegram
 import os
@@ -11,13 +11,46 @@ Telegram notification bot with highly privacy/data protection.
 author: guangrei
 """
 
+# bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024 # un-comment this to change default request limit!
 HOST = os.environ.get("TG_BOT_HOST")
 ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY")
 admin_user = os.environ.get("ADMIN_USER")
 admin_password = os.environ.get("ADMIN_PASSWORD")
-template = """
-now you can start sending messages, for example:
+start_template = """
+Your token is `{token}`
+You are now ready to start sending messages, please check /help\_send\_text and /help\_send\_file to get started!
+""" 
+help_send_text_template = """
+** ENDPOINTS: **
+`https://end-points`
+
+** METHOD: ** `POST`
+
+** BODY: **
+`{
+  "text": "message text (required)"
+}`
+
+example:
 `curl -X POST https://end-points -d '{"text": "Hello, world 🐣"}'`
+"""
+help_send_file_template = """
+** ENDPOINTS: **
+`https://end-points`
+
+** METHOD: ** `POST`
+
+** BODY: **
+`{
+  "file": {
+    "name": "file name with extension (required)",
+    "content": "base64 file content (required)",
+    "caption": "file caption (optional)"
+  }
+}`
+
+example:
+`echo "this is test file!" > test_file.txt && curl -X POST https://end-points -d "{\\"file\\": {\\"name\\": \\"test_file.txt\\", \\"content\\": \\"$(base64 -w 0 < test_file.txt)\\"}}"`
 """
 help_template = """
 to get support please open issues <a href="https://github.com/cirebon-dev/notification_bot">here</a>
@@ -49,10 +82,18 @@ def telegram_hook():
     msg = telegram.get_message(data)
     msg_id = telegram.get_message_id(data)
     chat_id = telegram.get_chat_id(data)
+    token = fernet.encrypt(str(chat_id).encode())
+    api_uri = f"{HOST}/h/{token.decode()}"
     if msg == "/start":
-        token = fernet.encrypt(str(chat_id).encode())
-        msg = f"{HOST}/h/{token.decode()}"
-        msg = template.replace("end-points", msg)
+        msg = start_template.format(token=token.decode())
+        telegram.send_message(
+            msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
+    elif msg == "/help_send_text":
+        msg = help_send_text_template.replace("end-points", api_uri)
+        telegram.send_message(
+            msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
+    elif msg == "/help_send_file":
+        msg = help_send_file_template.replace("end-points", api_uri)
         telegram.send_message(
             msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
     elif msg == "/help":
@@ -68,7 +109,13 @@ def notify_handler(token):
         data = request.body.read().decode('utf-8')
         data = json.loads(data)
         chat_id = int(fernet.decrypt(token.encode()).decode())
-        return telegram.send_message(data["text"], chat_id)
+        if "text" in data:
+            return telegram.send_message(data["text"], chat_id)
+        if "file" in data:
+            if "caption" in data["file"]:
+                return telegram.send_file(data["file"]["name"], data["file"]["content"], chat_id, data["file"]["caption"])
+            else:
+                return telegram.send_file(data["file"]["name"], data["file"]["content"], chat_id)
     except BaseException as e:
         return {"ok": False, "ServerError": str(e)}
 

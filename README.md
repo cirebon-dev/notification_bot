@@ -2,7 +2,11 @@
 
 With [@sendh_bot](https://t.me/sendh_bot) you can easy send notification/message to telegram from anywhere (Terminal, CI/CD pipeline, IoT device etc)
 
-![Screenshot](screenshot.png)
+![Screenshot 1](Screenshots/Screenshot_1.png)
+
+![Screenshot 2](Screenshots/Screenshot_2.png)
+
+![Screenshot 3](Screenshots/Screenshot_3.png)
 
 This service is stateless, so your privacy is highly protected, and you can deploy it in your own instance.
 

@@ -1,6 +1,8 @@
 # -*-coding:utf8;-*-
 import os
 import requests
+import io
+import base64
 """
 library to interact with telegram bot api
 references:
@@ -16,14 +18,17 @@ def get_chat_id(data):
     chat_id = data['message']['chat']['id']
     return chat_id
 
+
 def get_message(data):
     message_text = data['message']['text']
     return message_text
 
+
 def get_message_id(data):
     message_id = data['message']['message_id']
     return message_id
-    
+
+
 def send_message(text, chat_id, parse_mode=False, disable_web_page_preview=False, disable_notification=False, reply_to_message_id=False, reply_markup=False):
     message_url = BOT_URL + 'sendMessage'
     json_data = {"chat_id": chat_id, "text": text, "disable_web_page_preview":
@@ -40,3 +45,23 @@ def send_message(text, chat_id, parse_mode=False, disable_web_page_preview=False
 def set_webhook(uri):
     api = BOT_URL + 'setWebHook?url='+uri
     return requests.get(api).json()
+
+
+def send_file(file_name, file_str, chat_id, caption=False):
+    api = BOT_URL + 'sendDocument'
+    file = base64.b64decode(file_str)
+    file = io.BytesIO(file)
+    files = {
+        'document': (file_name, file)
+    }
+    if caption:
+        data = {
+            'chat_id': chat_id,
+            'caption': caption
+        }
+    else:
+        data = {
+            'chat_id': chat_id
+        }
+    response = requests.post(api, data=data, files=files)
+    return response.json()
