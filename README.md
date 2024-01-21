@@ -1,4 +1,4 @@
-[![status workflow test](https://github.com/cirebon-dev/notification_bot/actions/workflows/python-app.yml/badge.svg)](https://github.com/cirebon-dev/notification_bot/actions) 
+[![status workflow test](https://github.com/cirebon-dev/notification_bot/actions/workflows/python-app.yml/badge.svg)](https://github.com/cirebon-dev/notification_bot/actions) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 With [@sendh_bot](https://t.me/sendh_bot) you can easy to send file or text message to telegram from anywhere (Terminal, CI/CD pipeline, IoT device etc)
 

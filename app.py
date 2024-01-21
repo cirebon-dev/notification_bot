@@ -1,11 +1,12 @@
 # -*-coding:utf8;-*-
 from cryptography.fernet import Fernet
-from bottle import route, request, post, auth_basic
+from bottle import route, request, post, auth_basic, hook, response
 import bottle
 import json
 import bottle
 import telegram
 import os
+
 """
 Telegram notification bot with highly privacy/data protection.
 author: guangrei
@@ -19,7 +20,7 @@ admin_password = os.environ.get("ADMIN_PASSWORD")
 start_template = """
 Your token is `{token}`
 You are now ready to start sending messages, please check /help\_send\_text and /help\_send\_file to get started!
-""" 
+"""
 help_send_text_template = """
 ** ENDPOINTS: **
 `https://end-points`
@@ -56,6 +57,9 @@ help_template = """
 to get support please open issues <a href="https://github.com/cirebon-dev/notification_bot">here</a>
 and follow our channel @anak_tkj
 """
+_allow_origin = "*"
+_allow_methods = "PUT, GET, POST, DELETE, OPTIONS"
+_allow_headers = "Authorization, Origin, Accept, Content-Type, X-Requested-With"
 key = ENCRYPTION_KEY.encode()
 fernet = Fernet(key)
 
@@ -64,7 +68,20 @@ def is_authenticated_user(user, password):
     return user == admin_user and password == admin_password
 
 
-@route('/')
+@hook("after_request")
+def enable_cors():
+    response.headers["Access-Control-Allow-Origin"] = _allow_origin
+    response.headers["Access-Control-Allow-Methods"] = _allow_methods
+    response.headers["Access-Control-Allow-Headers"] = _allow_headers
+
+
+@route("/", method="OPTIONS")
+@route("/<path:path>", method="OPTIONS")
+def options_handler(path=None):
+    return
+
+
+@route("/")
 def root_handler():
     return "its works!"
 
@@ -76,7 +93,7 @@ def update_handler():
     return telegram.set_webhook(url)
 
 
-@post('/'+telegram.token.replace(":", "_"))
+@post("/" + telegram.token.replace(":", "_"))
 def telegram_hook():
     data = request.json
     msg = telegram.get_message(data)
@@ -87,35 +104,58 @@ def telegram_hook():
     if msg == "/start":
         msg = start_template.format(token=token.decode())
         telegram.send_message(
-            msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
+            msg,
+            chat_id,
+            parse_mode="Markdown",
+            disable_web_page_preview=True,
+            reply_to_message_id=msg_id,
+        )
     elif msg == "/help_send_text":
         msg = help_send_text_template.replace("end-points", api_uri)
         telegram.send_message(
-            msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
+            msg,
+            chat_id,
+            parse_mode="Markdown",
+            disable_web_page_preview=True,
+            reply_to_message_id=msg_id,
+        )
     elif msg == "/help_send_file":
         msg = help_send_file_template.replace("end-points", api_uri)
         telegram.send_message(
-            msg, chat_id, parse_mode="Markdown", disable_web_page_preview=True, reply_to_message_id=msg_id)
+            msg,
+            chat_id,
+            parse_mode="Markdown",
+            disable_web_page_preview=True,
+            reply_to_message_id=msg_id,
+        )
     elif msg == "/help":
-        telegram.send_message(help_template, chat_id, parse_mode="Html",
-                              reply_to_message_id=msg_id)
+        telegram.send_message(
+            help_template, chat_id, parse_mode="Html", reply_to_message_id=msg_id
+        )
 
     return "OK"
 
 
-@post('/h/<token>')
+@post("/h/<token>")
 def notify_handler(token):
     try:
-        data = request.body.read().decode('utf-8')
+        data = request.body.read().decode("utf-8")
         data = json.loads(data)
         chat_id = int(fernet.decrypt(token.encode()).decode())
         if "text" in data:
             return telegram.send_message(data["text"], chat_id)
         if "file" in data:
             if "caption" in data["file"]:
-                return telegram.send_file(data["file"]["name"], data["file"]["content"], chat_id, data["file"]["caption"])
+                return telegram.send_file(
+                    data["file"]["name"],
+                    data["file"]["content"],
+                    chat_id,
+                    data["file"]["caption"],
+                )
             else:
-                return telegram.send_file(data["file"]["name"], data["file"]["content"], chat_id)
+                return telegram.send_file(
+                    data["file"]["name"], data["file"]["content"], chat_id
+                )
     except BaseException as e:
         return {"ok": False, "ServerError": str(e)}
 
@@ -124,4 +164,4 @@ bottle.debug(True)
 app = application = bottle.default_app()
 
 if __name__ == "__main__":
-    bottle.run(host='0.0.0.0', port=80, debug=True)
+    bottle.run(host="0.0.0.0", port=80, debug=True)
