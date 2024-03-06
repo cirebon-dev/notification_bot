@@ -164,4 +164,4 @@ bottle.debug(True)
 app = application = bottle.default_app()
 
 if __name__ == "__main__":
-    bottle.run(host="0.0.0.0", port=80, debug=True)
+    bottle.run(host="0.0.0.0", port=80, reloader=True)

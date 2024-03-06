@@ -11,6 +11,8 @@ python = "^3.10"
 requests = "^2.31.0"
 bottle = "^0.12.25"
 cryptography = "^41.0.7"
+gunicorn = "^21.2.0"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.4"

@@ -10,15 +10,15 @@ With [@sendh_bot](https://t.me/sendh_bot) you can easy to send file or text mess
 
 This service is stateless, so your privacy is highly protected, and you can deploy it in your own instance.
 
-## Run Locally
+## Run Locally (self hosted)
 
-1. type command `poetry self add poetry-dotenv-plugin`.
+1. install dependency with `pip install -r requirements.txt`.
 
-2. type command `poetry update`.
+2. generate key with `python keygen.py`.
 
-3. edit `.env.example` and renamed to `.env`.
+3. edit `.env.example` file and renamed to `.env`.
 
-4. type command `poetry run python app.py`
+4. type command `gunicorn --bind 0.0.0.0:80 wsgi`
  
 5. open browser `https://your-host/update_webhook`
 
